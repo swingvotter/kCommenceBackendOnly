@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "./config/.env" });
+require("dotenv").config();
 const db = require("./config/db");
 const express = require("express");
 const app = express();
@@ -15,7 +15,8 @@ const orderRouter = require("./route/orderRoute");
 //middleware start here
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.CORS_ORIGIN // This will be your frontend URL in production
+  process.env.CORS_ORIGIN,
+  "*" // Temporarily allow all origins during deployment testing
 ];
 
 app.use(
@@ -37,6 +38,11 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Add a basic health check endpoint
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 app.use("/api/Auth", userRouter);
 app.use("/api/Product", productRouter);
 app.use("/api/Cart", cartRouter);
@@ -48,7 +54,12 @@ app.get("/test", auth, (req, res) => {
 
 const port = process.env.PORT || 6000;
 
-app.listen(port, () => {
+// Improve error handling for the database connection
+db().catch(err => {
+  console.error("Database connection error:", err);
+  process.exit(1);
+});
+
+app.listen(port, "0.0.0.0", () => {
   console.log(`server started on port ${port}`);
-  db();
 });
