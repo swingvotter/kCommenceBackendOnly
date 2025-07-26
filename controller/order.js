@@ -7,8 +7,6 @@ const crypto = require("crypto");
 // PLACE ORDER CONTROLLER
 const placeOrder = async (req, res) => {
   try {
-    console.log("usernInfo:::::", req.userInfo);
-
     // Find cart and populate product details
     const cart = await Cart.findOne({ userId: req.userInfo.id }).populate(
       "items.productId"
@@ -62,7 +60,7 @@ const placeOrder = async (req, res) => {
         currency: "GHS",
         amount: Math.round(totalAmount * 100), // Convert to lowest currency unit
         email: user.email,
-        callback_url: `${process.env.CLIENT_URL}/payment-success`,
+        callback_url: `${process.env.CLIENT_URL}`,
       };
       console.log("Paystack payload:", paystackPayload);
 
